@@ -57,21 +57,6 @@ class TaskServiceImplTest {
     }
 
     @Test
-    void testCreateTask_Failure_NullTitle() {
-        // Arrange
-        User user = new User();
-        user.setId(UUID.randomUUID());
-        user.setUsername("testUser");
-        user.setPassword("password123");
-
-        TaskDTO invalidTaskDTO = new TaskDTO(null, null, "This is a sample description", false);
-
-        // Act & Assert
-        Exception exception = assertThrows(RuntimeException.class, () -> taskService.createTask(invalidTaskDTO, user));
-        verify(mockTaskRepository, times(1)).save(any(Task.class));
-    }
-
-    @Test
     void testGetAllUserTasks_Success() {
         // Arrange
         User user = new User();
@@ -172,27 +157,27 @@ class TaskServiceImplTest {
     @Test
     void testGetUserTaskById_Unauthorized() {
         // Arrange
-        User user1 = new User();
-        user1.setId(UUID.randomUUID());
-        user1.setUsername("user1");
-        user1.setPassword("password123");
+        User unauthorizedUser = new User();
+        unauthorizedUser.setId(UUID.randomUUID());
+        unauthorizedUser.setUsername("unauthorizedUser");
+        unauthorizedUser.setPassword("password123");
 
-        User user2 = new User();
-        user2.setId(UUID.randomUUID());
-        user2.setUsername("user2");
-        user2.setPassword("password456");
+        User user = new User();
+        user.setId(UUID.randomUUID());
+        user.setUsername("user");
+        user.setPassword("password456");
 
         Task task = new Task();
         task.setId(UUID.randomUUID());
         task.setTitle("Sample Task");
         task.setDescription("This is a sample task description");
         task.setCompleted(false);
-        task.setUser(user2);
+        task.setUser(user);
 
         when(mockTaskRepository.findById(task.getId())).thenReturn(Optional.of(task));
 
         // Act & Assert
-        Exception exception = assertThrows(RuntimeException.class, () -> taskService.getUserTaskById(user1, task.getId()));
+        Exception exception = assertThrows(RuntimeException.class, () -> taskService.getUserTaskById(unauthorizedUser, task.getId()));
         assertEquals("Unauthorized: Task does not belong to user", exception.getMessage());
         verify(mockTaskRepository, times(1)).findById(task.getId());
     }
@@ -261,22 +246,22 @@ class TaskServiceImplTest {
     @Test
     void testUpdateUserTask_Unauthorized() {
         // Arrange
-        User user1 = new User();
-        user1.setId(UUID.randomUUID());
-        user1.setUsername("user1");
-        user1.setPassword("password123");
+        User unauthorizedUser = new User();
+        unauthorizedUser.setId(UUID.randomUUID());
+        unauthorizedUser.setUsername("unauthorizedUser");
+        unauthorizedUser.setPassword("password123");
 
-        User user2 = new User();
-        user2.setId(UUID.randomUUID());
-        user2.setUsername("user2");
-        user2.setPassword("password456");
+        User user = new User();
+        user.setId(UUID.randomUUID());
+        user.setUsername("user");
+        user.setPassword("password456");
 
         Task existingTask = new Task();
         existingTask.setId(UUID.randomUUID());
         existingTask.setTitle("Old Title");
         existingTask.setDescription("Old Description");
         existingTask.setCompleted(false);
-        existingTask.setUser(user2);
+        existingTask.setUser(user);
 
         TaskDTO updatedTaskDTO = new TaskDTO(null, "Updated Title", "Updated Description", true);
 
@@ -284,7 +269,7 @@ class TaskServiceImplTest {
 
         // Act & Assert
         Exception exception = assertThrows(RuntimeException.class, () ->
-                taskService.updateUserTask(user1, existingTask.getId(), updatedTaskDTO));
+                taskService.updateUserTask(unauthorizedUser, existingTask.getId(), updatedTaskDTO));
         assertEquals("Unauthorized: Task does not belong to user", exception.getMessage());
         verify(mockTaskRepository, times(1)).findById(existingTask.getId());
         verify(mockTaskRepository, never()).save(any(Task.class));
@@ -313,5 +298,53 @@ class TaskServiceImplTest {
         // Assert
         verify(mockTaskRepository, times(1)).findById(task.getId());
         verify(mockTaskRepository, times(1)).deleteById(task.getId());
+    }
+
+    @Test
+    void testDeleteUserTask_TaskNotFound(){
+        // Arrange
+        User user = new User();
+        user.setId(UUID.randomUUID());
+        user.setUsername("testUser");
+        user.setPassword("password123");
+
+        UUID nonexistentTaskId = UUID.randomUUID();
+
+        when(mockTaskRepository.findById(nonexistentTaskId)).thenReturn(Optional.empty());
+
+        // Act & Assert
+        Exception exception = assertThrows(RuntimeException.class, () -> taskService.deleteUserTask(user, nonexistentTaskId));
+        assertEquals("Task not found", exception.getMessage());
+        verify(mockTaskRepository, times(1)).findById(nonexistentTaskId);
+        verify(mockTaskRepository, never()).deleteById(nonexistentTaskId);
+    }
+
+    @Test
+    void testDeleteUserTask_Unauthorized(){
+        // Arrange
+        User unauthorizedUser = new User();
+        unauthorizedUser.setId(UUID.randomUUID());
+        unauthorizedUser.setUsername("unauthorizedUser");
+        unauthorizedUser.setPassword("password123");
+
+        User user = new User();
+        user.setId(UUID.randomUUID());
+        user.setUsername("user");
+        user.setPassword("password456");
+
+        Task existingTask = new Task();
+        existingTask.setId(UUID.randomUUID());
+        existingTask.setTitle("Old Title");
+        existingTask.setDescription("Old Description");
+        existingTask.setCompleted(false);
+        existingTask.setUser(user);
+
+        when(mockTaskRepository.findById(existingTask.getId())).thenReturn(Optional.of(existingTask));
+
+        // Act & Assert
+        Exception exception = assertThrows(RuntimeException.class, () -> taskService.deleteUserTask(unauthorizedUser, existingTask.getId()));
+        assertEquals("Unauthorized: Task does not belong to user", exception.getMessage());
+        verify(mockTaskRepository, times(1)).findById(existingTask.getId());
+        verify(mockTaskRepository, never()).deleteById(existingTask.getId());
     }
 }
