@@ -1,0 +1,18 @@
+spring:
+  application:
+    name: task-api
+  datasource:
+    driverClassName: org.postgresql.Driver
+  sql:
+    init:
+      mode: always
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    defer-datasource-initialization: true
+springdoc:
+  swagger-ui:
+    path: /docs
+jwt:
+  secretKey: your-256-bit-secret-key-here-1234567890
+  expirationTime: 86400
