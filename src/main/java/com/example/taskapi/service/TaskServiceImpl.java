@@ -5,7 +5,7 @@ import java.util.UUID;
 
 import com.example.taskapi.entity.User;
 import com.example.taskapi.exception.TaskNotFoundException;
-import com.example.taskapi.exception.UnauthorizedTaskAccessException;
+import com.example.taskapi.exception.UnauthorizedAccessException;
 import org.springframework.stereotype.Service;
 
 import com.example.taskapi.dto.TaskDTO;
@@ -70,7 +70,7 @@ public class TaskServiceImpl implements TaskService {
 
     private void validateOwner(User user, Task task) {
         if (!task.getUser().equals(user)) {
-            throw new UnauthorizedTaskAccessException(UNAUTHORIZED_ACCESS);
+            throw new UnauthorizedAccessException(UNAUTHORIZED_ACCESS);
         }
     }
 }

@@ -4,7 +4,7 @@ import com.example.taskapi.dto.TaskDTO;
 import com.example.taskapi.entity.Task;
 import com.example.taskapi.entity.User;
 import com.example.taskapi.exception.TaskNotFoundException;
-import com.example.taskapi.exception.UnauthorizedTaskAccessException;
+import com.example.taskapi.exception.UnauthorizedAccessException;
 import com.example.taskapi.mapper.TaskMapper;
 import com.example.taskapi.repository.TaskRepository;
 import org.junit.jupiter.api.Test;
@@ -188,7 +188,7 @@ class TaskServiceImplTest {
         when(mockTaskRepository.findById(task.getId())).thenReturn(Optional.of(task));
 
         // Act & Assert
-        Exception exception = assertThrows(UnauthorizedTaskAccessException.class, () -> taskService.getUserTaskById(unauthorizedUser, taskId));
+        Exception exception = assertThrows(UnauthorizedAccessException.class, () -> taskService.getUserTaskById(unauthorizedUser, taskId));
         assertEquals("Unauthorized: Task does not belong to user", exception.getMessage());
         verify(mockTaskRepository, times(1)).findById(task.getId());
     }
@@ -281,7 +281,7 @@ class TaskServiceImplTest {
         when(mockTaskRepository.findById(existingTask.getId())).thenReturn(Optional.of(existingTask));
 
         // Act & Assert
-        Exception exception = assertThrows(UnauthorizedTaskAccessException.class, () ->
+        Exception exception = assertThrows(UnauthorizedAccessException.class, () ->
                 taskService.updateUserTask(unauthorizedUser, existingTaskId, updatedTaskDTO));
         assertEquals("Unauthorized: Task does not belong to user", exception.getMessage());
         verify(mockTaskRepository, times(1)).findById(existingTask.getId());
@@ -357,7 +357,7 @@ class TaskServiceImplTest {
         when(mockTaskRepository.findById(existingTask.getId())).thenReturn(Optional.of(existingTask));
 
         // Act & Assert
-        Exception exception = assertThrows(UnauthorizedTaskAccessException.class, () -> taskService.deleteUserTask(unauthorizedUser, existingTaskId));
+        Exception exception = assertThrows(UnauthorizedAccessException.class, () -> taskService.deleteUserTask(unauthorizedUser, existingTaskId));
         assertEquals("Unauthorized: Task does not belong to user", exception.getMessage());
         verify(mockTaskRepository, times(1)).findById(existingTask.getId());
         verify(mockTaskRepository, never()).deleteById(existingTask.getId());

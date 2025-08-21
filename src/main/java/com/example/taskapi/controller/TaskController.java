@@ -19,7 +19,7 @@ import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("api/v1/tasks")
-@SecurityRequirement(name="Bearer Authentication")
+@SecurityRequirement(name = "Bearer Authentication")
 public class TaskController {
     private final TaskService taskService;
 
@@ -33,7 +33,7 @@ public class TaskController {
     @PostMapping
     public ResponseEntity<TaskDTO> createTask(@AuthenticationPrincipal User user, @Valid @RequestBody TaskDTO taskDTO) {
         TaskDTO createdTask = taskService.createTask(taskDTO, user);
-        return new ResponseEntity<TaskDTO>(createdTask, HttpStatus.CREATED);
+        return new ResponseEntity<>(createdTask, HttpStatus.CREATED);
     }
 
     @Operation(summary = "Get all tasks", description = "Retrieves a list of all tasks")
@@ -41,7 +41,7 @@ public class TaskController {
     @GetMapping()
     public ResponseEntity<List<TaskDTO>> getAllTasks(@AuthenticationPrincipal User user) {
         List<TaskDTO> tasks = taskService.getAllUserTasks(user);
-        return new ResponseEntity<List<TaskDTO>>(tasks, HttpStatus.OK);
+        return new ResponseEntity<>(tasks, HttpStatus.OK);
     }
 
     @Operation(summary = "Get task by ID", description = "Retrieves a task by its unique identifier")
@@ -49,8 +49,8 @@ public class TaskController {
     @ApiResponse(responseCode = "404", description = "Task not found")
     @GetMapping("/{id}")
     public ResponseEntity<TaskDTO> getTaskById(@AuthenticationPrincipal User user, @PathVariable UUID id) {
-            TaskDTO task = taskService.getUserTaskById(user, id);
-            return new ResponseEntity<TaskDTO>(task, HttpStatus.OK);
+        TaskDTO task = taskService.getUserTaskById(user, id);
+        return new ResponseEntity<>(task, HttpStatus.OK);
     }
 
     @Operation(summary = "Update task by ID", description = "Updates an existing task with the provided details")
@@ -59,12 +59,8 @@ public class TaskController {
     @ApiResponse(responseCode = "400", description = "Invalid task data provided")
     @PutMapping("/{id}")
     public ResponseEntity<TaskDTO> updateTask(@AuthenticationPrincipal User user, @PathVariable UUID id, @Valid @RequestBody TaskDTO taskDTO) {
-        try {
-            TaskDTO updatedTask = taskService.updateUserTask(user, id, taskDTO);
-            return new ResponseEntity<TaskDTO>(updatedTask, HttpStatus.OK);
-        } catch (RuntimeException ex) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+        TaskDTO updatedTask = taskService.updateUserTask(user, id, taskDTO);
+        return new ResponseEntity<>(updatedTask, HttpStatus.OK);
     }
 
     @Operation(summary = "Delete task by ID", description = "Deletes a task by its unique identifier")
@@ -72,11 +68,7 @@ public class TaskController {
     @ApiResponse(responseCode = "404", description = "Task not found")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteTask(@AuthenticationPrincipal User user, @PathVariable UUID id) {
-        try {
-            taskService.deleteUserTask(user, id);
-            return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
-        } catch (RuntimeException ex) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+        taskService.deleteUserTask(user, id);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }

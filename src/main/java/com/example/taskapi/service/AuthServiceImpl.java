@@ -2,6 +2,7 @@ package com.example.taskapi.service;
 
 import com.example.taskapi.dto.LoginRequest;
 import com.example.taskapi.entity.User;
+import com.example.taskapi.exception.AlreadyExistsException;
 import com.example.taskapi.repository.UserRepository;
 import com.example.taskapi.security.JwtUtil;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -27,7 +28,7 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public String register(LoginRequest loginRequest) {
         if (userRepository.existsByUsername(loginRequest.username())) {
-            throw new RuntimeException("User already exists");
+            throw new AlreadyExistsException("User already exists");
         }
         User user = new User();
         user.setUsername(loginRequest.username());

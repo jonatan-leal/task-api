@@ -1,8 +1,9 @@
 
 package com.example.taskapi.error;
 
+import com.example.taskapi.exception.AlreadyExistsException;
 import com.example.taskapi.exception.TaskNotFoundException;
-import com.example.taskapi.exception.UnauthorizedTaskAccessException;
+import com.example.taskapi.exception.UnauthorizedAccessException;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -18,10 +19,20 @@ import java.time.LocalDateTime;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+    @ExceptionHandler(AlreadyExistsException.class)
+    public ResponseEntity<ApiError> handleAlreadyExistsException(AlreadyExistsException ex, WebRequest request) {
+        ApiError apiError = new ApiError(
+                request.getDescription(false),
+                ex.getMessage(),
+                HttpStatus.CONFLICT.value(),
+                HttpStatus.CONFLICT.name(),
+                LocalDateTime.now()
+        );
+        return new ResponseEntity<>(apiError, HttpStatus.CONFLICT);
+    }
+
     @ExceptionHandler(TaskNotFoundException.class)
-    public ResponseEntity<ApiError> handleTaskNotFoundException(
-            TaskNotFoundException ex,
-            WebRequest request) {
+    public ResponseEntity<ApiError> handleTaskNotFoundException(TaskNotFoundException ex, WebRequest request) {
         ApiError apiError = new ApiError(
                 request.getDescription(false),
                 ex.getMessage(),
@@ -32,10 +43,8 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(apiError, HttpStatus.NOT_FOUND);
     }
 
-    @ExceptionHandler(UnauthorizedTaskAccessException.class)
-    public ResponseEntity<ApiError> handleUnauthorizedTaskAccessException(
-            UnauthorizedTaskAccessException ex,
-            WebRequest request) {
+    @ExceptionHandler(UnauthorizedAccessException.class)
+    public ResponseEntity<ApiError> handleUnauthorizedTaskAccessException(UnauthorizedAccessException ex, WebRequest request) {
         ApiError apiError = new ApiError(
                 request.getDescription(false),
                 ex.getMessage(),
@@ -47,9 +56,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ApiError> handleMethodArgumentNotValid(
-            MethodArgumentNotValidException ex,
-            WebRequest request) {
+    public ResponseEntity<ApiError> handleMethodArgumentNotValid(MethodArgumentNotValidException ex, WebRequest request) {
         String errorMessage = ex.getBindingResult()
                 .getFieldErrors()
                 .stream()
@@ -68,9 +75,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(ConstraintViolationException.class)
-    public ResponseEntity<ApiError> handleConstraintViolationException(
-            ConstraintViolationException ex,
-            WebRequest request) {
+    public ResponseEntity<ApiError> handleConstraintViolationException(ConstraintViolationException ex, WebRequest request) {
         String errorMessage = ex.getConstraintViolations()
                 .stream()
                 .map(violation -> violation.getPropertyPath() + ": " + violation.getMessage())
@@ -88,9 +93,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ApiError> handleAllUncaughtException(
-            Exception ex,
-            WebRequest request) {
+    public ResponseEntity<ApiError> handleAllUncaughtException(Exception ex, WebRequest request) {
         log.error("Unknown error occurred", ex);
 
         ApiError apiError = new ApiError(
