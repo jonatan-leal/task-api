@@ -1,4 +1,4 @@
-package com.example.taskapi.configs;
+package com.example.taskapi.config;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;

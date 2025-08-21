@@ -1,6 +1,6 @@
-package com.example.taskapi.services;
+package com.example.taskapi.service;
 
-import com.example.taskapi.repositories.UserRepository;
+import com.example.taskapi.repository.UserRepository;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;

@@ -1,4 +1,4 @@
-package com.example.taskapi.configs;
+package com.example.taskapi.config;
 
 import com.example.taskapi.security.JwtFilter;
 import org.springframework.context.annotation.Bean;

@@ -1,9 +1,9 @@
-package com.example.taskapi.controllers;
+package com.example.taskapi.controller;
 
 import java.util.List;
 import java.util.UUID;
 
-import com.example.taskapi.entities.User;
+import com.example.taskapi.entity.User;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -12,8 +12,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import com.example.taskapi.dtos.TaskDTO;
-import com.example.taskapi.services.TaskService;
+import com.example.taskapi.dto.TaskDTO;
+import com.example.taskapi.service.TaskService;
 
 import jakarta.validation.Valid;
 
@@ -49,12 +49,8 @@ public class TaskController {
     @ApiResponse(responseCode = "404", description = "Task not found")
     @GetMapping("/{id}")
     public ResponseEntity<TaskDTO> getTaskById(@AuthenticationPrincipal User user, @PathVariable UUID id) {
-        try {
             TaskDTO task = taskService.getUserTaskById(user, id);
             return new ResponseEntity<TaskDTO>(task, HttpStatus.OK);
-        } catch (RuntimeException ex) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
     }
 
     @Operation(summary = "Update task by ID", description = "Updates an existing task with the provided details")

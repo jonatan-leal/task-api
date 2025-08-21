@@ -1,6 +1,6 @@
-package com.example.taskapi.repositories;
+package com.example.taskapi.repository;
 
-import com.example.taskapi.entities.User;
+import com.example.taskapi.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

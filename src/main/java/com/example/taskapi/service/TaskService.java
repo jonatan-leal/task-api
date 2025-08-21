@@ -1,10 +1,10 @@
-package com.example.taskapi.services;
+package com.example.taskapi.service;
 
 import java.util.List;
 import java.util.UUID;
 
-import com.example.taskapi.dtos.TaskDTO;
-import com.example.taskapi.entities.User;
+import com.example.taskapi.dto.TaskDTO;
+import com.example.taskapi.entity.User;
 
 public interface TaskService {
     TaskDTO createTask(TaskDTO taskDTO, User user);

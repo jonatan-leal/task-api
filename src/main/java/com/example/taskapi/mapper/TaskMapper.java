@@ -1,13 +1,13 @@
-package com.example.taskapi.mappers;
+package com.example.taskapi.mapper;
 
 import org.springframework.stereotype.Component;
 
-import com.example.taskapi.dtos.TaskDTO;
-import com.example.taskapi.entities.Task;
+import com.example.taskapi.dto.TaskDTO;
+import com.example.taskapi.entity.Task;
 
 @Component
 public class TaskMapper {
-    public static TaskDTO convertToDTO(Task task) {
+    public TaskDTO toDTO(Task task) {
         return new TaskDTO(
             task.getId(),
             task.getTitle(),

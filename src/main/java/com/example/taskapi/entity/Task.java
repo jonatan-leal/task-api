@@ -1,4 +1,4 @@
-package com.example.taskapi.entities;
+package com.example.taskapi.entity;
 
 import java.util.UUID;
 

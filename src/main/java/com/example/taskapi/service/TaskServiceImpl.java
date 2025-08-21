@@ -1,22 +1,29 @@
-package com.example.taskapi.services;
+package com.example.taskapi.service;
 
 import java.util.List;
 import java.util.UUID;
 
-import com.example.taskapi.entities.User;
+import com.example.taskapi.entity.User;
+import com.example.taskapi.exception.TaskNotFoundException;
+import com.example.taskapi.exception.UnauthorizedTaskAccessException;
 import org.springframework.stereotype.Service;
 
-import com.example.taskapi.dtos.TaskDTO;
-import com.example.taskapi.entities.Task;
-import com.example.taskapi.mappers.TaskMapper;
-import com.example.taskapi.repositories.TaskRepository;
+import com.example.taskapi.dto.TaskDTO;
+import com.example.taskapi.entity.Task;
+import com.example.taskapi.mapper.TaskMapper;
+import com.example.taskapi.repository.TaskRepository;
 
 @Service
 public class TaskServiceImpl implements TaskService {
-    private final TaskRepository taskRepository;
+    private static final String TASK_NOT_FOUND = "Task not found";
+    private static final String UNAUTHORIZED_ACCESS = "Unauthorized: Task does not belong to user";
 
-    public TaskServiceImpl(TaskRepository taskRepository) {
+    private final TaskRepository taskRepository;
+    private final TaskMapper taskMapper;
+
+    public TaskServiceImpl(TaskRepository taskRepository, TaskMapper taskMapper) {
         this.taskRepository = taskRepository;
+        this.taskMapper = taskMapper;
     }
 
     @Override
@@ -27,43 +34,43 @@ public class TaskServiceImpl implements TaskService {
         task.setCompleted(taskDTO.completed());
         task.setUser(user);
         Task savedTask = taskRepository.save(task);
-        return TaskMapper.convertToDTO(savedTask);
+        return taskMapper.toDTO(savedTask);
     }
 
     @Override
     public List<TaskDTO> getAllUserTasks(User user) {
         return taskRepository.findAllByUser(user).stream()
-                .map(TaskMapper::convertToDTO).toList();
+                .map(taskMapper::toDTO).toList();
     }
 
     @Override
     public TaskDTO getUserTaskById(User user, UUID id) {
-        Task task = taskRepository.findById(id).orElseThrow(() -> new RuntimeException("Task not found"));
+        Task task = taskRepository.findById(id).orElseThrow(() -> new TaskNotFoundException(TASK_NOT_FOUND));
         validateOwner(user, task);
-        return TaskMapper.convertToDTO(task);
+        return taskMapper.toDTO(task);
     }
 
     @Override
     public TaskDTO updateUserTask(User user, UUID id, TaskDTO taskDTO) {
-        Task task = taskRepository.findById(id).orElseThrow(() -> new RuntimeException("Task not found"));
+        Task task = taskRepository.findById(id).orElseThrow(() -> new TaskNotFoundException(TASK_NOT_FOUND));
         validateOwner(user, task);
         task.setTitle(taskDTO.title());
         task.setDescription(taskDTO.description());
         task.setCompleted(taskDTO.completed());
         Task updatedTask = taskRepository.save(task);
-        return TaskMapper.convertToDTO(updatedTask);
+        return taskMapper.toDTO(updatedTask);
     }
 
     @Override
     public void deleteUserTask(User user, UUID id) {
-        Task task = taskRepository.findById(id).orElseThrow(() -> new RuntimeException("Task not found"));
+        Task task = taskRepository.findById(id).orElseThrow(() -> new TaskNotFoundException(TASK_NOT_FOUND));
         validateOwner(user, task);
         taskRepository.deleteById(id);
     }
 
     private void validateOwner(User user, Task task) {
         if (!task.getUser().equals(user)) {
-            throw new RuntimeException("Unauthorized: Task does not belong to user");
+            throw new UnauthorizedTaskAccessException(UNAUTHORIZED_ACCESS);
         }
     }
 }

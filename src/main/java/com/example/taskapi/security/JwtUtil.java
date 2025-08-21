@@ -13,19 +13,24 @@ import java.time.temporal.ChronoUnit;
 @Component
 public class JwtUtil {
     @Value("${jwt.secretKey}")
-    private String SECRET_KEY;
-    @Value("${jwt.expirationTime}")
-    private long EXPIRATION_TIME;
+    private final String secretKey;
+
+    private final long expirationTime;
+
+    public JwtUtil(@Value("${jwt.secretKey}") String secretKey, @Value("${jwt.expirationTime}") long expirationTime) {
+        this.secretKey = secretKey;
+        this.expirationTime = expirationTime;
+    }
 
     public String generateToken(String username) {
         Instant now = Instant.now();
-        Instant expiry = now.plus(EXPIRATION_TIME, ChronoUnit.SECONDS);
+        Instant expiry = now.plus(expirationTime, ChronoUnit.SECONDS);
 
         return JWT.create()
                 .withSubject(username)
                 .withIssuedAt(now)
                 .withExpiresAt(expiry)
-                .sign(Algorithm.HMAC256(SECRET_KEY));
+                .sign(Algorithm.HMAC256(secretKey));
     }
 
     public String extractUsername(String token) {
@@ -43,7 +48,7 @@ public class JwtUtil {
     }
 
     private DecodedJWT getDecodedJWT(String token) {
-        return JWT.require(Algorithm.HMAC256(SECRET_KEY))
+        return JWT.require(Algorithm.HMAC256(secretKey))
                 .build()
                 .verify(token);
     }

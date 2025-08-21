@@ -1,4 +1,4 @@
-package com.example.taskapi.dtos;
+package com.example.taskapi.dto;
 
 import java.util.UUID;
 

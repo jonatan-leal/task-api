@@ -1,8 +1,8 @@
-package com.example.taskapi.controllers;
+package com.example.taskapi.controller;
 
-import com.example.taskapi.dtos.LoginRequest;
-import com.example.taskapi.dtos.LoginResponse;
-import com.example.taskapi.services.AuthService;
+import com.example.taskapi.dto.LoginRequest;
+import com.example.taskapi.dto.LoginResponse;
+import com.example.taskapi.service.AuthService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;

@@ -1,8 +1,8 @@
-package com.example.taskapi.services;
+package com.example.taskapi.service;
 
-import com.example.taskapi.dtos.LoginRequest;
-import com.example.taskapi.entities.User;
-import com.example.taskapi.repositories.UserRepository;
+import com.example.taskapi.dto.LoginRequest;
+import com.example.taskapi.entity.User;
+import com.example.taskapi.repository.UserRepository;
 import com.example.taskapi.security.JwtUtil;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
