@@ -15,4 +15,5 @@ springdoc:
     path: /docs
 jwt:
   secretKey: your-256-bit-secret-key-here-1234567890
-  expirationTime: 86400
+  accessTokenExpirationTime: 900
+  refreshTokenExpirationTime: 86400

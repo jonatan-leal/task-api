@@ -32,7 +32,7 @@ public class JwtFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
         String token = extractTokenFromHeader(request.getHeader(AUTHORIZATION_HEADER));
-        authenticateUserIfRequired(token, request);
+        authenticateUserIfValidToken(token, request);
         filterChain.doFilter(request, response);
     }
 
@@ -43,17 +43,13 @@ public class JwtFilter extends OncePerRequestFilter {
         return EMPTY_TOKEN;
     }
 
-    private void authenticateUserIfRequired(String token, HttpServletRequest request) {
-        if (!token.equals(EMPTY_TOKEN) && isAuthenticationRequired()) {
+    private void authenticateUserIfValidToken(String token, HttpServletRequest request) {
+        if (!token.equals(EMPTY_TOKEN)) {
             String username = jwtUtil.extractUsername(token);
             if (username != null && jwtUtil.validateToken(token)) {
                 authenticateUser(username, request);
             }
         }
-    }
-
-    private boolean isAuthenticationRequired() {
-        return SecurityContextHolder.getContext().getAuthentication() == null;
     }
 
     private void authenticateUser(String username, HttpServletRequest request) {

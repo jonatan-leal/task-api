@@ -5,11 +5,8 @@
 API REST para la gestión de tareas desarrollada con Jakarta EE, Spring Data JPA y Spring MVC.
 
 ## Tecnologías
-- Java SDK 21
-- Jakarta EE
-- Spring Data JPA
-- Spring MVC
-- Lombok
+- Java 21
+- Spring Data
 - PostgreSQL 17
 - Docker Compose
 

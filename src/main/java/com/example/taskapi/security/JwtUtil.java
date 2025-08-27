@@ -12,17 +12,28 @@ import java.time.temporal.ChronoUnit;
 
 @Component
 public class JwtUtil {
-    @Value("${jwt.secretKey}")
     private final String secretKey;
+    private final long accessTokenExpirationTime;
+    private final long refreshTokenExpirationTime;
 
-    private final long expirationTime;
-
-    public JwtUtil(@Value("${jwt.secretKey}") String secretKey, @Value("${jwt.expirationTime}") long expirationTime) {
+    public JwtUtil(
+            @Value("${jwt.secretKey}") String secretKey,
+            @Value("${jwt.accessTokenExpirationTime}") long accessTokenExpirationTime,
+            @Value("${jwt.refreshTokenExpirationTime}") long refreshTokenExpirationTime) {
         this.secretKey = secretKey;
-        this.expirationTime = expirationTime;
+        this.accessTokenExpirationTime = accessTokenExpirationTime;
+        this.refreshTokenExpirationTime = refreshTokenExpirationTime;
     }
 
-    public String generateToken(String username) {
+    public String generateAccessToken(String username) {
+        return generateToken(username, accessTokenExpirationTime);
+    }
+
+    public String generateRefreshToken(String username) {
+        return generateToken(username, refreshTokenExpirationTime);
+    }
+
+    public String generateToken(String username, long expirationTime) {
         Instant now = Instant.now();
         Instant expiry = now.plus(expirationTime, ChronoUnit.SECONDS);
 

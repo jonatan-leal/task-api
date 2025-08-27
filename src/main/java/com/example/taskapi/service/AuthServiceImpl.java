@@ -1,13 +1,16 @@
 package com.example.taskapi.service;
 
 import com.example.taskapi.dto.LoginRequest;
+import com.example.taskapi.dto.TokenResponse;
 import com.example.taskapi.entity.User;
 import com.example.taskapi.exception.AlreadyExistsException;
+import com.example.taskapi.exception.InvalidTokenException;
 import com.example.taskapi.repository.UserRepository;
 import com.example.taskapi.security.JwtUtil;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -38,13 +41,34 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public String login(LoginRequest loginRequest) {
+    public TokenResponse login(LoginRequest loginRequest) {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         loginRequest.username(),
                         loginRequest.password()
                 )
         );
-        return jwtUtil.generateToken(authentication.getName());
+        var username = authentication.getName();
+        return new TokenResponse(
+                jwtUtil.generateAccessToken(username),
+                jwtUtil.generateRefreshToken(username)
+        );
+    }
+
+    @Override
+    public TokenResponse refreshToken(String refreshToken) {
+        if (!jwtUtil.validateToken(refreshToken)) {
+            throw new InvalidTokenException("Invalid refresh token");
+        }
+
+        String username = jwtUtil.extractUsername(refreshToken);
+        if (!userRepository.existsByUsername(username)) {
+            throw new UsernameNotFoundException("User not found");
+        }
+
+        return new TokenResponse(
+                jwtUtil.generateAccessToken(username),
+                refreshToken
+        );
     }
 }
