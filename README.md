@@ -2,11 +2,13 @@
 # task-api
 
 ## Descripción
-API REST para la gestión de tareas desarrollada con Jakarta EE, Spring Data JPA y Spring MVC.
+API REST para la gestión de tareas desarrollada con Spring Boot.
 
 ## Tecnologías
 - Java 21
 - Spring Data
+- Spring Security
+- JWT
 - PostgreSQL 17
 - Docker Compose
 

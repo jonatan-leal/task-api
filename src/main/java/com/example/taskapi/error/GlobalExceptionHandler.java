@@ -2,6 +2,7 @@
 package com.example.taskapi.error;
 
 import com.example.taskapi.exception.AlreadyExistsException;
+import com.example.taskapi.exception.InvalidTokenException;
 import com.example.taskapi.exception.TaskNotFoundException;
 import com.example.taskapi.exception.UnauthorizedAccessException;
 import jakarta.validation.ConstraintViolationException;
@@ -19,6 +20,19 @@ import java.time.LocalDateTime;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+    @ExceptionHandler(InvalidTokenException.class)
+    public ResponseEntity<ApiError> handleInvalidTokenException(InvalidTokenException ex, WebRequest request) {
+        ApiError apiError = new ApiError(
+                request.getDescription(false),
+                ex.getMessage(),
+                HttpStatus.UNAUTHORIZED.value(),
+                HttpStatus.UNAUTHORIZED.name(),
+                LocalDateTime.now()
+        );
+        log.error("InvalidTokenException: {}", apiError);
+        return new ResponseEntity<>(apiError, HttpStatus.UNAUTHORIZED);
+    }
+
     @ExceptionHandler(AlreadyExistsException.class)
     public ResponseEntity<ApiError> handleAlreadyExistsException(AlreadyExistsException ex, WebRequest request) {
         ApiError apiError = new ApiError(
@@ -28,6 +42,7 @@ public class GlobalExceptionHandler {
                 HttpStatus.CONFLICT.name(),
                 LocalDateTime.now()
         );
+        log.error("AlreadyExistsException: {}", apiError);
         return new ResponseEntity<>(apiError, HttpStatus.CONFLICT);
     }
 
@@ -40,6 +55,7 @@ public class GlobalExceptionHandler {
                 HttpStatus.NOT_FOUND.name(),
                 LocalDateTime.now()
         );
+        log.error("TaskNotFoundException: {}", apiError);
         return new ResponseEntity<>(apiError, HttpStatus.NOT_FOUND);
     }
 
@@ -52,6 +68,7 @@ public class GlobalExceptionHandler {
                 HttpStatus.FORBIDDEN.name(),
                 LocalDateTime.now()
         );
+        log.error("UnauthorizedTaskAccessException: {}", apiError);
         return new ResponseEntity<>(apiError, HttpStatus.FORBIDDEN);
     }
 
@@ -71,6 +88,7 @@ public class GlobalExceptionHandler {
                 HttpStatus.BAD_REQUEST.name(),
                 LocalDateTime.now()
         );
+        log.error("MethodArgumentNotValidException: {}", apiError);
         return new ResponseEntity<>(apiError, HttpStatus.BAD_REQUEST);
     }
 
@@ -89,13 +107,12 @@ public class GlobalExceptionHandler {
                 HttpStatus.BAD_REQUEST.name(),
                 LocalDateTime.now()
         );
+        log.error("ConstraintViolationException: {}", apiError);
         return new ResponseEntity<>(apiError, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiError> handleAllUncaughtException(Exception ex, WebRequest request) {
-        log.error("Unknown error occurred", ex);
-
         ApiError apiError = new ApiError(
                 request.getDescription(false),
                 "An unexpected error occurred",
@@ -103,6 +120,7 @@ public class GlobalExceptionHandler {
                 HttpStatus.INTERNAL_SERVER_ERROR.name(),
                 LocalDateTime.now()
         );
+        log.error("UncaughtException: {}", apiError, ex);
         return new ResponseEntity<>(apiError, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

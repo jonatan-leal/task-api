@@ -42,17 +42,21 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public TokenResponse login(LoginRequest loginRequest) {
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        loginRequest.username(),
-                        loginRequest.password()
-                )
-        );
-        var username = authentication.getName();
-        return new TokenResponse(
-                jwtUtil.generateAccessToken(username),
-                jwtUtil.generateRefreshToken(username)
-        );
+        try {
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            loginRequest.username(),
+                            loginRequest.password()
+                    )
+            );
+            var username = authentication.getName();
+            return new TokenResponse(
+                    jwtUtil.generateAccessToken(username),
+                    jwtUtil.generateRefreshToken(username)
+            );
+        } catch (Exception e) {
+            throw new InvalidTokenException("Invalid username or password");
+        }
     }
 
     @Override
